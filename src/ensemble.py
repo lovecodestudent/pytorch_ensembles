@@ -50,7 +50,7 @@ class Ensemble:
 
         self.num_ensembles = 0.0
 
-        for _ in os.listdir(self.model_path):
+        for idx, _ in enumerate(os.listdir(self.model_path)):
 
             torch.cuda.empty_cache()
 
@@ -65,8 +65,11 @@ class Ensemble:
                 print("error reading {}".format(_))
                 continue
 
-            self.ensemble_score += self.get_prediction(input, model)
-
+            if idx:
+                self.ensemble_score += self.get_prediction(input, model)
+            else:
+                self.ensemble_score = self.get_prediction(input, model)
+                
             self.num_ensembles += 1.0
 
             print("Time taken = {}s".format(timedelta(seconds=time.monotonic() - t1)))
