@@ -17,7 +17,7 @@ import torch
 
 class Ensemble:
 
-    def __init__(self, model_path, ensemble_type='avg'):
+    def __init__(self, model_path, ensemble_type='avg', device='cuda:0'):
         ''' Initialize an Ensemble object.
 
         model_path: path to a directory that contains the models to be ensembled. Ensure that the path contains nothing else other than the models.
@@ -31,6 +31,8 @@ class Ensemble:
         self.model_path = model_path
 
         self.ensemble_score = None
+
+        self.device = device
 
 
     def get_prediction(self, input, model, path=False):
@@ -49,6 +51,7 @@ class Ensemble:
     def predict_ensemble(self, input):
 
         self.num_ensembles = 0.0
+        input = input.to(self.device)
 
         for idx, _ in enumerate(os.listdir(self.model_path)):
 
@@ -66,10 +69,10 @@ class Ensemble:
                 continue
 
             if idx:
-                self.ensemble_score += self.get_prediction(input, model)
+                self.ensemble_score += self.get_prediction(input, model.to(self.device))
             else:
-                self.ensemble_score = self.get_prediction(input, model)
-                
+                self.ensemble_score = self.get_prediction(input, model.to(self.device))
+
             self.num_ensembles += 1.0
 
             print("Time taken = {}s".format(timedelta(seconds=time.monotonic() - t1)))
